@@ -36,10 +36,10 @@ const onSuccesResponse = response => response.json().then(infoWeather => {
   });
 
 const changeAll = () => {
-    let {main: {temp}} = weather;
-    let {name} = weather;
-    let {weather: [{icon}]} = weather;
-    let {weather: [{description}]} = weather;
+    const {main: {temp}} = weather;
+    const {name} = weather;
+    const {weather: [{icon}]} = weather;
+    const {weather: [{description}]} = weather;
     changeIcon(icon);
     changeTemp(temp);
     changeTempDesc(description);
@@ -61,6 +61,7 @@ const changeTempDesc = (description) => {
     const pDesc = document.getElementsByClassName("temperature-description")[0].children[0];
     pDesc.innerText = description;
 }
+
 const changeLocation = (location) => {
     const pLoc = document.getElementsByClassName("location")[0].children[0];
     pLoc.innerText = location;
