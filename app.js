@@ -40,10 +40,11 @@ const changeAll = () => {
     const {name} = weather;
     const {weather: [{icon}]} = weather;
     const {weather: [{description}]} = weather;
+    const {sys: {country}} = weather;
     changeIcon(icon);
     changeTemp(temp);
     changeTempDesc(description);
-    changeLocation(name);
+    changeLocation(name, country);
 }
 
 const changeIcon = (icon) => {
@@ -62,8 +63,8 @@ const changeTempDesc = (description) => {
     pDesc.innerText = description;
 }
 
-const changeLocation = (location) => {
+const changeLocation = (location, country) => {
     const pLoc = document.getElementsByClassName("location")[0].children[0];
-    pLoc.innerText = location;
+    pLoc.innerText = `${location}, ${country}`;
 }
 
