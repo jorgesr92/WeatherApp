@@ -33,13 +33,12 @@ const callWeather = (lat, lon)=> {
 const onSuccesResponse = response => response.json().then(infoWeather => {
     weather = infoWeather;
     changeAll();
-  });
+  }).catch(error => onError(error));
 
 const changeAll = () => {
     const {main: {temp}} = weather;
     const {name} = weather;
-    const {weather: [{icon}]} = weather;
-    const {weather: [{description}]} = weather;
+    const {weather: [{icon, description}]} = weather;
     const {sys: {country}} = weather;
     changeIcon(icon);
     changeTemp(temp);
