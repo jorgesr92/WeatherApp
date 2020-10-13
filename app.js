@@ -131,7 +131,9 @@ const createElementList = (city, ul) => {
 };
 
 const createListResults = () => {
+    if (document.getElementById("result")) document.getElementById("result").remove();
     const listResults = document.createElement("ul");
+    listResults.id = "result";
     listResults.style.marginLeft = "0px";
     listResults.style.paddingLeft = "0px";
     listResults.style.textAlign = "center";
