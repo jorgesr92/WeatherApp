@@ -11,8 +11,8 @@
 </head>
 <body>
 
-    <div style="display: flex; margin-top: 5rem;">
-        <div class="container">
+    <div style="display: flex; margin-top: 5rem;text-align: center;">
+        <div class="container" style="margin-right: 1rem; margin-left: 5rem;">
             <div class="app-title">
                 <p>The weather in other cities</p>
             </div>
@@ -24,31 +24,69 @@
                 
             </div>
         </div>
-        <div id='map' style='max-width: 700px; height: 400px; flex: auto; margin-right: 5rem;'>
+        <div class="column" style='max-width: 700px'>
+            <div id='map' style='width: 700px; height: 400px; flex: auto; margin-right: 5rem;'></div>
+        
+            <div style="display: flex;">
+                <div class="container" style="margin-top: 1rem;">
+                    <div class="app-title">
+                        <p>Weather in your city</p>
+                    </div>
+                    <div class="notification"> </div>
+                    <div class="weather-container">
+                        <div class="weather-icon">
+                            <img id="icon" src="icons/unknown.png" alt="">
+                        </div>
+                        <div class="temperature-value">
+                            <p id = "pTemp">- °<span>C</span></p>
+                        </div>
+                        <div class="temperature-description">
+                            <p id="description"> - </p>
+                        </div>
+                        <div class="location">
+                            <p id="location" >-</p>
+                        </div>
+                        <div class="location" style="margin-top: 1rem;">
+                            <button>More about your city</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" style="margin-top: 1rem;">
+                    <div class="app-title">
+                        <p>Weather in your selection</p>
+                    </div>
+                    <div class="notification"> </div>
+                    <div class="weather-container">
+                        <div class="weather-icon">
+                            <img id="iconSearch" src="icons/unknown.png" alt="">
+                        </div>
+                        <div class="temperature-value">
+                            <p id = "pTempSearch">- °<span>C</span></p>
+                        </div>
+                        <div class="temperature-description">
+                            <p id="descriptionSearch"> - </p>
+                        </div>
+                        <div class="location">
+                            <p id="locationSearch" >-</p>
+                        </div>
+                        <div class="location" style="margin-top: 1rem;">
+                            <button>More about your city</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div style="display: flex;">
-        <div class="container" style="margin-top: 1rem;">
+        <div class="container" style="margin-right: 5rem; margin-left: 1rem;">
             <div class="app-title">
-                <p>Weather</p>
+                <p>Favorites</p>
             </div>
-            <div class="notification"> </div>
-            <div class="weather-container">
-                <div class="weather-icon">
-                    <img id="icon" src="icons/unknown.png" alt="">
-                </div>
-                <div class="temperature-value">
-                    <p id = "pTemp">- °<span>C</span></p>
-                </div>
-                <div class="temperature-description">
-                    <p id="description"> - </p>
-                </div>
-                <div class="location">
-                    <p id="location" >-</p>
-                </div>
+            <div id="favoritesDiv">
+
             </div>
         </div>
     </div>
+    <div class="container" style="margin-top: 5rem; margin-right: 5rem; margin-left: 5rem; width: 1350px; display: none;"></div>
+   
     
     
     
