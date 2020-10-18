@@ -7,17 +7,20 @@ const searchImput = document.getElementById("citiesSearcher");
 const searchBtn = document.getElementById("searchBtn");
 const resultsSearch = document.getElementById("searchResults");
 const favoritesDiv = document.getElementById("favoritesDiv");
+const alertDivSearch = document.getElementById("notificationNoFound");
+const divMyAdds = document.getElementById("myCities");
 let citiesfound = "";
 let arrCities = [];
 
 const changeMap = (lat, lon) => {
     mapboxgl.accessToken = 'pk.eyJ1Ijoiam9yZ2VzcjkyIiwiYSI6ImNrZzhiNG8weTBma2syeW52dDNrbDh0bzgifQ.f17Czkz9pV4iYe33N9g0PQ';
-    var map = new mapboxgl.Map({
+    const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
-    center: [lon, lat], // starting position [lng, lat]
-    zoom: 9 // starting zoom
+    style: 'mapbox://styles/mapbox/streets-v11', 
+    center: [lon, lat], 
+    zoom: 9 
     });
+    // const createMarker = new mapboxgl.Marker().setLgnLat([lon, lat]).addTo(map);
 };
 
 const onSuccess = (position) => {
@@ -48,12 +51,12 @@ const callWeather = (lat, lon)=> {
 };
 
 const callCities = (city) => {
-    fetch(`http://api.openweathermap.org/data/2.5/find?q=${city}&appid=${apiKey}`).then(response => onSuccessC(response)).catch(error => onError(error))
+    fetch(`http://api.openweathermap.org/data/2.5/find?q=${city}&appid=${apiKey}`).then(response => onSuccessC(response, city)).catch(error => onError(error))
 };
 
-const onSuccessC = response => response.json().then(citiesSearch => {
-    citiesfound = citiesSearch;
-    createListResults();
+const onSuccessC = (response, city) => response.json().then(citiesSearch => {
+    citiesfound = citiesSearch
+    citiesfound.list.length === 0 ? alertNoFound(city) : createListResults();
 })
 
 const onSuccesResponse = response => response.json().then(infoWeather => {
@@ -98,8 +101,7 @@ const changeTemp = (value, isMyCity) => {
     let id = "pTemp";
     if (!isMyCity) id = id.concat("Search");
     const pTemp = document.getElementById(id);
-    let tempString = pTemp.textContent;
-    pTemp.innerText = tempString.replace(/-/, (value-273.15).toFixed(2));
+    pTemp.innerText = `${(value-273.15).toFixed(2)} °C`;
 };
 
 const changeTempDesc = (description, isMyCity) => {
@@ -117,14 +119,25 @@ const changeLocation = (location, country, isMyCity) => {
 };
 
 searchBtn.addEventListener("click", ()=>{
-    let city = searchImput.value;
-    callCities(city);
+    alertDivSearch.style.display = "none";
+    deleteLists();
+    checkSearch(searchImput.value);
 });
 
-const createElementList = (city, ul) => {
+const checkSearch = (value) => {
+    value.length === 0 ? alertNoFound(value) : callCities(value);
+}
+
+const alertNoFound = (value) => {
+    alertDivSearch.innerText = `Cities no found with "${value}"`;
+    alertDivSearch.style.display = "block";
+}
+
+const createElementList = (city, ul, id) => {
     const liElement = document.createElement("li");
     const aElement = document.createElement("a");
     const imgIcon = document.createElement("img");
+    
 
     liElement.style.listStyle = "none";
     liElement.style.marginTop = "1rem";
@@ -139,13 +152,72 @@ const createElementList = (city, ul) => {
 
     aElement.appendChild(liElement);
     ul.appendChild(aElement);
-    ul.appendChild(imgIcon);
+    liElement.appendChild(imgIcon);
+    if (id === "favorites") {
+        createBtnDelete(city, ul);
+        createBtnAdd(city, ul);
+    }
 };
+
+const createBtns = (id, text) => {
+    const btn = document.createElement("button");
+    btn.style.marginTop = "5px";
+    btn.style.marginLeft = "5px";
+    btn.id = id;
+    btn.innerText = text;
+    return btn;
+};
+
+const createBtnDelete = (city, ul) => {
+    const deleteBtn = createBtns("deleteBtn", "Delete")
+    deleteBtn.onclick = () => {
+        deleteCity(city);
+        addFavorites();
+    };
+    ul.appendChild(deleteBtn);
+};
+
+const createBtnAdd = (city, ul) => {
+    const addBtn = createBtns("addBtn", "Add")
+    addBtn.onclick = () => {
+        cloneCard(city);
+    }
+    ul.appendChild(addBtn);
+};
+
+const cloneCard = (city) => {
+    const container = document.getElementById("firstContainer");
+    let clone = container.cloneNode(true);
+    clone.id = `container-${city.name}-${city.id}`;
+    clone = changeClone(clone, city)
+    divMyAdds.appendChild(clone);
+    return clone;
+};
+
+const changeClone = (clone, city) => {
+    const [titleDiv, notificationDiv, weatherContainerDiv] = clone.children;
+    titleDiv.children[0].innerText = `${city.name} Weather`;
+
+    const [weatherIconDiv, temperatureValueDiv, temperatureDescriptDiv, locationDiv] = weatherContainerDiv.children;
+    weatherIconDiv.children[0].id = `icon-${city.name}-${city.id}`;
+    weatherIconDiv.children[0].src = `icons/${city.weather[0].icon}.png`;
+
+    temperatureValueDiv.children[0].id =`pTemp-${city.name}-${city.id}`;
+    temperatureValueDiv.children[0].innerText = `${(city.main.temp-273.15).toFixed(2)} °C`;
+
+    temperatureDescriptDiv.children[0].id =`pTempSearch-${city.name}-${city.id}`;
+    temperatureDescriptDiv.children[0].innerText = `${city.weather[0].description}`;
+
+    locationDiv.children[0].id =`location-${city.name}-${city.id}`;
+    locationDiv.children[0].innerText = `${city.name}, ${city.sys.country}`;
+
+    return clone;
+}
 
 const createListResults = (search = true, id = "result") => {
     let cities = [];
     search ? cities = citiesfound.list : cities = arrCities;
-    if (document.getElementById(id)) document.getElementById(id).remove();
+    deleteLists(id);
 
     const listResults = document.createElement("ul");
     listResults.id = id;
@@ -153,16 +225,28 @@ const createListResults = (search = true, id = "result") => {
     listResults.style.paddingLeft = "0px";
     listResults.style.textAlign = "center";
     cities.map(element => {
-        createElementList(element, listResults, search);
+        createElementList(element, listResults, id);
     })
     
     search ? resultsSearch.appendChild(listResults) : favoritesDiv.appendChild(listResults);
 };
 
+const deleteLists = (id = "result") => {
+    if (document.getElementById(id)) document.getElementById(id).remove();
+}
+
 const addFavorites = () => {
     createListResults(false, "favorites");
 }
 
+const deleteCity = (city) => {
+    indexCity = arrCities.indexOf(city);
+    arrCities.splice(indexCity, 1);
+}
+
+const createContainer = () => {
+    
+}
 
 
 
