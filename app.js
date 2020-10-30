@@ -147,7 +147,8 @@ const createElementList = (city, ul, id) => {
     imgIcon.src = `icons/${city.weather[0].icon}.png`;
     aElement.onclick = () => {
         changeMap(city.coord.lat, city.coord.lon);
-        changeAll(city, false);
+        pushFavorites(city);
+        addFavorites()
     }
 
     aElement.appendChild(liElement);
@@ -180,15 +181,19 @@ const createBtnDelete = (city, ul) => {
 const createBtnAdd = (city, ul) => {
     const addBtn = createBtns("addBtn", "Add")
     addBtn.onclick = () => {
-        cloneCard(city);
+        checkAndClone(city);
     }
     ul.appendChild(addBtn);
 };
 
+const checkAndClone = (city) => {
+    document.getElementById(`container-${city.name}-${city.id}`) ? alert(`La ciudad de ${city.name} ya tiene su tarjeta en el tablero`) : cloneCard(city);
+}
 const cloneCard = (city) => {
+    const idCardClone = `container-${city.name}-${city.id}`;
     const container = document.getElementById("firstContainer");
     let clone = container.cloneNode(true);
-    clone.id = `container-${city.name}-${city.id}`;
+    clone.id = idCardClone;
     clone = changeClone(clone, city)
     divMyAdds.appendChild(clone);
     return clone;
@@ -240,8 +245,14 @@ const addFavorites = () => {
 }
 
 const deleteCity = (city) => {
-    indexCity = arrCities.indexOf(city);
-    arrCities.splice(indexCity, 1);
+    //indexCity = arrCities.indexOf(city);
+    //arrCities.splice(indexCity, 1);
+    deleteCardCity(city);
+}
+const deleteCardCity = (city) => {
+    const idCard = `container-${city.name}-${city.id}`;
+    document.getElementById(idCard).remove();
+
 }
 
 const createContainer = () => {
