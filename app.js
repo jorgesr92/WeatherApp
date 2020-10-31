@@ -8,9 +8,11 @@ const searchBtn = document.getElementById("searchBtn");
 const resultsSearch = document.getElementById("searchResults");
 const favoritesDiv = document.getElementById("favoritesDiv");
 const alertDivSearch = document.getElementById("notificationNoFound");
-const divMyAdds = document.getElementById("myCities");
+let divMyAdds = document.getElementById("myCities");
+const containerCards = document.getElementById("containerCards");
 let citiesfound = "";
 let arrCities = [];
+let numDivsCont = 1;
 
 const changeMap = (lat, lon) => {
     mapboxgl.accessToken = 'pk.eyJ1Ijoiam9yZ2VzcjkyIiwiYSI6ImNrZzhiNG8weTBma2syeW52dDNrbDh0bzgifQ.f17Czkz9pV4iYe33N9g0PQ';
@@ -33,7 +35,7 @@ const errorAlert = (errMessage) =>{
     const pNotification = document.createElement("p");
     pNotification.innerText = errMessage;
 
-    const divNotification = document.getElementsByClassName("notification")[0];
+    const divNotification = document.getElementById("notGeo");
     divNotification.style.display = "block";
 
     divNotification.appendChild(pNotification);
@@ -155,22 +157,31 @@ const createElementList = (city, ul, id) => {
     ul.appendChild(aElement);
     liElement.appendChild(imgIcon);
     if (id === "favorites") {
-        createBtnDelete(city, ul);
         createBtnAdd(city, ul);
+        createBtnDelete(city, ul);
     }
 };
 
 const createBtns = (id, text) => {
-    const btn = document.createElement("button");
+    const btn = document.createElement("a");
+    const img = document.createElement("img");
+    img.style.width = "25px";
     btn.style.marginTop = "5px";
     btn.style.marginLeft = "5px";
     btn.id = id;
-    btn.innerText = text;
+    img.src = `icons/${text}.png`;
+    img.addEventListener("mouseenter", ()=>{
+        img.src = `icons/${text}1.png`;
+    });
+    img.addEventListener("mouseleave", ()=>{
+        img.src = `icons/${text}.png`;
+    });
+    btn.appendChild(img);
     return btn;
 };
 
 const createBtnDelete = (city, ul) => {
-    const deleteBtn = createBtns("deleteBtn", "Delete")
+    const deleteBtn = createBtns("deleteBtn", "delete");
     deleteBtn.onclick = () => {
         deleteCity(city);
         addFavorites();
@@ -179,8 +190,9 @@ const createBtnDelete = (city, ul) => {
 };
 
 const createBtnAdd = (city, ul) => {
-    const addBtn = createBtns("addBtn", "Add")
+    const addBtn = createBtns("addBtn", "add");
     addBtn.onclick = () => {
+        checkNumberDivs();
         checkAndClone(city);
     }
     ul.appendChild(addBtn);
@@ -194,8 +206,9 @@ const cloneCard = (city) => {
     const container = document.getElementById("firstContainer");
     let clone = container.cloneNode(true);
     clone.id = idCardClone;
-    clone = changeClone(clone, city)
+    clone = changeClone(clone, city);
     divMyAdds.appendChild(clone);
+    divMyAdds =  document.getElementById("myCities");
     return clone;
 };
 
@@ -217,6 +230,29 @@ const changeClone = (clone, city) => {
     locationDiv.children[0].innerText = `${city.name}, ${city.sys.country}`;
 
     return clone;
+}
+
+const checkNumberDivs = () => {
+    let divAvi = false;
+    let numCards = divMyAdds.children.length;
+    if (numCards === 4) {
+        for (let i = 1; i <= numDivsCont && !divAvi && document.getElementById(`myCities-${i}`); i++){
+            numCards = document.getElementById(`myCities-${i}`).children.length;
+            if (numCards < 4) {
+                divAvi = true;
+                num = i;
+            };
+        }
+        if (divAvi){
+            divMyAdds = document.getElementById(`myCities-${num}`);
+        } else {
+            let clone = divMyAdds.cloneNode(false);
+            clone.id = `myCities-${numDivsCont}`;
+            containerCards.appendChild(clone);
+            divMyAdds = document.getElementById(`myCities-${numDivsCont}`);
+            numDivsCont++;
+        }
+    };
 }
 
 const createListResults = (search = true, id = "result") => {
@@ -245,14 +281,22 @@ const addFavorites = () => {
 }
 
 const deleteCity = (city) => {
-    //indexCity = arrCities.indexOf(city);
-    //arrCities.splice(indexCity, 1);
-    deleteCardCity(city);
-}
-const deleteCardCity = (city) => {
     const idCard = `container-${city.name}-${city.id}`;
-    document.getElementById(idCard).remove();
+    if (document.getElementById(idCard)) {
+        deleteCardCity(idCard);
+        deleteHistoryCities(city);
+    } else {
+        alert(`La carta de ${city.name} no fue añadida, por lo que no se puede borrar.`);
+    };
+}
 
+const deleteCardCity = (idCard) => {
+    document.getElementById(idCard).remove();
+}
+
+const deleteHistoryCities = (city) => {
+    indexCity = arrCities.indexOf(city);
+    arrCities.splice(indexCity, 1);
 }
 
 const createContainer = () => {
