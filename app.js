@@ -66,17 +66,29 @@ const onSuccesResponse = response => response.json().then(infoWeather => {
     changeAll();
 }).catch(error => onError(error));
 
-const changeAll = (city = weather, isMyCity = true) => {
+const changeAll = (city = weather, isMyCity = true, div = "") => {
+    let divIcon = "";
+    let divTemp = "";
+    let divDesc = "";
+    let divLoc = "";
+    if (!isMyCity) {
+        const [weatherIconDiv, temperatureValueDiv, temperatureDescriptDiv, locationDiv] = div.children;
+        divIcon = weatherIconDiv.children[0];
+        divTemp = temperatureValueDiv.children[0];
+        divDesc = temperatureDescriptDiv.children[0];
+        divLoc = locationDiv.children[0];
+    }
     const {main: {temp}} = city;
     const {name} = city;
+    const {id} = city;
     const {weather: [{icon, description}]} = city;
     const {sys: {country}} = city;
-    changeIcon(icon, isMyCity);
-    changeTemp(temp, isMyCity);
-    changeTempDesc(description, isMyCity);
-    changeLocation(name, country, isMyCity);
+    changeIcon(name, id, icon, isMyCity, divIcon);
+    changeTemp(name, id, temp, isMyCity, divTemp);
+    changeTempDesc(name, id, description, isMyCity, divDesc);
+    changeLocation(id, name, country, isMyCity, divLoc);
     pushFavorites(city);
-    addFavorites()
+    addFavorites();
 };
 
 const pushFavorites = (city) => {
@@ -92,31 +104,35 @@ const fisrtCapital = (word) => {
     return results
 };
 
-const changeIcon = (icon, isMyCity) => {
+const changeIcon = (name, idCity, icon, isMyCity, div) => {
     let id = "icon";
-    if (!isMyCity) id = id.concat("Search");
-    const imgIcon = document.getElementById(id);
+    let imgIcon = "";
+    isMyCity ? imgIcon = document.getElementById(id) : imgIcon = div;
+    if (!isMyCity) imgIcon.id = `icon-${name}-${idCity}`;
     imgIcon.src = `icons/${icon}.png`;
 };
 
-const changeTemp = (value, isMyCity) => {
+const changeTemp = (name, idCity, value, isMyCity, div) => {
     let id = "pTemp";
-    if (!isMyCity) id = id.concat("Search");
-    const pTemp = document.getElementById(id);
+    let pTemp = "";
+    isMyCity ? pTemp = document.getElementById(id) : pTemp = div;
+    if (!isMyCity) pTemp.id = `pTemp-${name}-${idCity}`;
     pTemp.innerText = `${(value-273.15).toFixed(2)} °C`;
 };
 
-const changeTempDesc = (description, isMyCity) => {
+const changeTempDesc = (name, idCity, description, isMyCity, div) => {
     let id = "description";
-    if (!isMyCity) id = id.concat("Search");
-    const pDesc = document.getElementById(id);
-    pDesc.innerText = fisrtCapital(description);
+    let pDesc = "";
+    isMyCity ? pDesc = document.getElementById(id) : pDesc = div;
+    if (!isMyCity) pDesc.id = `description-${name}-${idCity}`;
+    pDesc.innerText = fisrtCapital(`${description}`);
 };
 
-const changeLocation = (location, country, isMyCity) => {
+const changeLocation = (idCity, location, country, isMyCity, div) => {
     let id = "location";
-    if (!isMyCity) id = id.concat("Search");
-    const pLoc = document.getElementById(id)
+    let pLoc = "";
+    isMyCity ? pLoc = document.getElementById(id) : pLoc = div;
+    if (!isMyCity) pLoc.id = `location-${location}-${idCity}`;
     pLoc.innerText = `${location}, ${country}`;
 };
 
@@ -201,6 +217,7 @@ const createBtnAdd = (city, ul) => {
 const checkAndClone = (city) => {
     document.getElementById(`container-${city.name}-${city.id}`) ? alert(`La ciudad de ${city.name} ya tiene su tarjeta en el tablero`) : cloneCard(city);
 }
+
 const cloneCard = (city) => {
     const idCardClone = `container-${city.name}-${city.id}`;
     const container = document.getElementById("firstContainer");
@@ -216,18 +233,7 @@ const changeClone = (clone, city) => {
     const [titleDiv, notificationDiv, weatherContainerDiv] = clone.children;
     titleDiv.children[0].innerText = `${city.name} Weather`;
 
-    const [weatherIconDiv, temperatureValueDiv, temperatureDescriptDiv, locationDiv] = weatherContainerDiv.children;
-    weatherIconDiv.children[0].id = `icon-${city.name}-${city.id}`;
-    weatherIconDiv.children[0].src = `icons/${city.weather[0].icon}.png`;
-
-    temperatureValueDiv.children[0].id =`pTemp-${city.name}-${city.id}`;
-    temperatureValueDiv.children[0].innerText = `${(city.main.temp-273.15).toFixed(2)} °C`;
-
-    temperatureDescriptDiv.children[0].id =`pTempSearch-${city.name}-${city.id}`;
-    temperatureDescriptDiv.children[0].innerText = `${city.weather[0].description}`;
-
-    locationDiv.children[0].id =`location-${city.name}-${city.id}`;
-    locationDiv.children[0].innerText = `${city.name}, ${city.sys.country}`;
+    changeAll(city, false, weatherContainerDiv);
 
     return clone;
 }
