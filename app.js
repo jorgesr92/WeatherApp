@@ -22,7 +22,6 @@ const changeMap = (lat, lon) => {
     center: [lon, lat], 
     zoom: 9 
     });
-    // const createMarker = new mapboxgl.Marker().setLgnLat([lon, lat]).addTo(map);
 };
 
 const onSuccess = (position) => {
