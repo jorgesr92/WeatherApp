@@ -32,12 +32,11 @@ const onSuccess = (position) => {
 };
 
 const errorAlert = (errMessage) =>{
-    const pNotification = document.createElement("p");
-    pNotification.innerText = errMessage;
-
     const divNotification = document.getElementById("notGeo");
+    let pNotification = "";
+    divNotification.children.length === 0 ? pNotification = document.createElement("p") : pNotification = divNotification.children;
+    pNotification.innerText = errMessage;
     divNotification.style.display = "block";
-
     divNotification.appendChild(pNotification);
 };
 
@@ -49,11 +48,11 @@ const onError = error => {
 navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
 const callWeather = (lat, lon)=> {
-    fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`).then(response => onSuccesResponse(response)).catch(error => onError(error))
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`).then(response => onSuccesResponse(response)).catch(error => onError(error))
 };
 
 const callCities = (city) => {
-    fetch(`http://api.openweathermap.org/data/2.5/find?q=${city}&appid=${apiKey}`).then(response => onSuccessC(response, city)).catch(error => onError(error))
+    fetch(`https://api.openweathermap.org/data/2.5/find?q=${city}&appid=${apiKey}`).then(response => onSuccessC(response, city)).catch(error => onError(error))
 };
 
 const onSuccessC = (response, city) => response.json().then(citiesSearch => {
@@ -303,10 +302,6 @@ const deleteCardCity = (idCard) => {
 const deleteHistoryCities = (city) => {
     indexCity = arrCities.indexOf(city);
     arrCities.splice(indexCity, 1);
-}
-
-const createContainer = () => {
-    
 }
 
 
